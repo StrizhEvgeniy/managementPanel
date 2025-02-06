@@ -1,5 +1,7 @@
-import {Table, TableColumnsType} from "antd";
-import React from "react";
+import {Button, DatePicker, Modal, Pagination, Select, Table, TableColumnsType} from "antd";
+import React, {useState} from "react";
+import styles from "./Logs.module.css"
+import {FilterFilled, ReloadOutlined} from "@ant-design/icons";
 
 interface DataType {
   key: React.Key;
@@ -14,7 +16,7 @@ const columns: TableColumnsType<DataType> = [
     dataIndex: 'date'
   },
   {
-    title: 'Статус',
+    title: 'Уровень',
     dataIndex: 'status',
     render: (value) => {
       if (value === 'error') return <span style={{color: 'red'}}>{value}</span>
@@ -58,12 +60,51 @@ const data = [
 
 
 export const Logs = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false)
   return (
-    <div>
-      <Table<DataType>
-        columns={columns}
-        dataSource={data}
-      />
+    <div className={styles.container}>
+      <div style={{display: 'flex'}}>
+        <Table<DataType>
+          style={{width: '95%'}}
+          columns={columns}
+          dataSource={data}
+          pagination={false}
+        />
+        <div style={{display: 'flex', flexDirection: 'column'}}>
+          <FilterFilled onClick={() => setIsModalOpen(true)} style={{fontSize: '150%', padding: 10}}/>
+          <ReloadOutlined style={{fontSize: '150%', padding: 10}}/>
+        </div>
+      </div>
+      <Pagination style={{marginBottom: 25}} showSizeChanger={true} pageSizeOptions={[30, 50, 100, 200, 500]}
+                  align='center'/>
+      <Modal title='Фильтрация логирования' open={isModalOpen} onOk={() => setIsModalOpen(false)}
+             onCancel={() => setIsModalOpen(false)}
+             footer={<div style={{display: 'flex', justifyContent: 'space-around'}}>
+               <Button>Применить</Button>
+               <Button>Отменить</Button>
+             </div>}>
+        <div style={{display: 'flex', flexDirection: 'column'}}>
+          <div style={{display: 'flex', justifyContent: 'space-between'}}>
+            <p>Дата начала логов:</p>
+            <DatePicker size='small' style={{margin: 5}}></DatePicker>
+          </div>
+          <div style={{display: 'flex', justifyContent: 'space-between'}}>
+            <p>Дата окончания логов:</p>
+            <DatePicker size='small' style={{margin: 5}}></DatePicker>
+          </div>
+          <div style={{display: 'flex', justifyContent: 'space-between'}}>
+            <p>Уровень</p>
+            <Select style={{margin: 5}} defaultValue={{value: 'none', label: 'Не выбрано'}}>
+              <Select.Option value="none">Не выбрано</Select.Option>
+              <Select.Option value="info">INFO</Select.Option>
+              <Select.Option value="log">LOG</Select.Option>
+              <Select.Option value="ready">READY</Select.Option>
+              <Select.Option value="error">ERROR</Select.Option>
+              <Select.Option value="debug">DEBUG</Select.Option>
+            </Select>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };
